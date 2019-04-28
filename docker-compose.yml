@@ -10,7 +10,15 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     user: root 
-
+  setup:
+    depends_on:
+      - mysql
+    image: reader/golang
+    env_file: .env
+    entrypoint: /app/bin/build.sh
+    command: ["/setup"]
+    volumes:
+      - .:/app
   reader:
     depends_on:
       - mysql
@@ -20,6 +28,15 @@ services:
     env_file: .env
     entrypoint: /app/bin/build.sh
     command: ["/reader"]
+    volumes:
+      - .:/app
+  teardown:
+    depends_on:
+      - mysql
+    image: reader/golang
+    env_file: .env
+    entrypoint: /app/bin/build.sh
+    command: ["/teardown"]
     volumes:
       - .:/app
 volumes:

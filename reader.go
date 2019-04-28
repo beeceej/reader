@@ -68,3 +68,7 @@ func NewReader(env Env) MonadReader {
 		env,
 	}
 }
+
+func NewEnv() map[EnvKey]EnvVal {
+	return map[EnvKey]EnvVal{}
+}
