@@ -1,26 +1,34 @@
 package reader
 
-type EnvVal interface{}
+// EnvKey is some identifier, used to extract a value out of the environment
 type EnvKey string
+
+// EnvVal represents the value at a given key
+type EnvVal interface{}
 
 // Env is the Env that our Reader works with
 type Env map[EnvKey]EnvVal
 
-// MonadReader is reader, with access to it's environment
+// MonadReader is a reader, with access to it's environment
 type MonadReader struct {
 	Reader
 	Env Env
 }
 
-// Ask returns the environment from the reader
+// Ask returns the current environment from the reader
 func (m MonadReader) Ask() Env {
 	return m.Env
 }
 
+// Bind is defined as MonadReader r a -> (r -> MonadReader r a) -> MonadReader r a
+// Bind takes in a function which accepts an env,
+// and returns a new MonadReader
 func (m MonadReader) Bind(fn func(env Env) MonadReader) MonadReader {
 	return fn(m.Ask())
 }
 
+// With takes a function that takes an env,
+// and the MonadReader supplies the env the function
 func (m MonadReader) With(fn func(env Env)) {
 	fn(m.Ask())
 }
@@ -39,7 +47,8 @@ func (runReader AReader) Run(env Env) EnvVal {
 	return runReader(env)
 }
 
-// KVReader will return a MonadReader, with k, v set.
+// KVReader will return a MonadReader,
+// and set the env[k] = v
 func KVReader(env Env, k EnvKey, v EnvVal) MonadReader {
 	env[k] = v
 	return MonadReader{

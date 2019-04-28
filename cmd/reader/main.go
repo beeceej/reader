@@ -78,7 +78,6 @@ var mysqlConnection = func(env r.Env) r.MonadReader {
 	db, err := sqlx.Connect("mysql", connString)
 
 	if err != nil {
-		fmt.Println(connString)
 		panic(err.Error())
 	}
 
@@ -126,13 +125,15 @@ func main() {
 		Bind(mysqlConnectionString).
 		Bind(mysqlConnection)
 
-	envReader.With(func(env r.Env) {
-		db := getMySQLConnection.Run(env).(*sqlx.DB)
-		createTable(db)
-		insertData(db)
-		queryData(db)
-		dropTable(db)
-	})
+	envReader.With(doDatabaseStuff)
+}
+
+func doDatabaseStuff(env r.Env) {
+	db := getMySQLConnection.Run(env).(*sqlx.DB)
+	createTable(db)
+	insertData(db)
+	queryData(db)
+	dropTable(db)
 }
 
 func createTable(db *sqlx.DB) {
