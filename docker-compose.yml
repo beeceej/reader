@@ -1,0 +1,26 @@
+version: '3.5'
+
+services:
+  mysql:
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    image: "mysql:5.7.22"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+    user: root 
+
+  reader:
+    depends_on:
+      - mysql
+    image: reader/golang
+    ports:
+      - "8080:8080"
+    env_file: .env
+    entrypoint: /app/bin/build.sh
+    command: ["/reader"]
+    volumes:
+      - .:/app
+volumes:
+  mysql:
